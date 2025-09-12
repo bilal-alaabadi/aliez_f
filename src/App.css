@@ -1,5 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800&family=Poppins:wght@400;500;600;700&display=swap");
 
+
+
 :root {
   --primary-color: #ed3849;
   --primary-color-dark: #d23141;
@@ -13,9 +15,9 @@
   --max-width-900: 900px;
   --header-font: "Playfair Display", serif;
 }
-/* #3D4B2E */
-/* #4E5A3F */
-/* #9B2D1F */
+/* #C9A33A */
+/* #64B5F6 */
+/* #1A237E */
 * {
   padding: 0;
   margin: 0;
@@ -34,7 +36,7 @@
   font-size: 2rem;
   font-weight: 800;
   font-family: var(--header-font);
-  color: var(--text-dark);
+  /* color: var(--text-dark); */
   text-align: center;
 }
 

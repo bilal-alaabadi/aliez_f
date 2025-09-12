@@ -18,9 +18,11 @@ export default {
         'text-dark': '#0f172a',
         'text-light': '#64748b',
         'extra-light': '#f8fafc'
-      }
+      },
+      fontFamily: {
+        janna: ['Janna LT', 'sans-serif'], // ✅ تعريف الخط
+      },
     },
   },
   plugins: [],
 }
-

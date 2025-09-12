@@ -149,7 +149,7 @@ const OrderSummary = ({ onClose }) => {
         <Link to="/checkout" className="block">
           <button
             onClick={onClose}
-            className="w-full rounded-md bg-[#CB908B] text-white py-2.5 text-sm font-medium hover:bg-[#6a1a26] transition-colors"
+            className="w-full rounded-md bg-[#42a0ec] text-white py-2.5 text-sm font-medium hover:bg-[#6a1a26] transition-colors"
           >
             المتابعة للدفع
           </button>

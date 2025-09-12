@@ -1,31 +1,17 @@
 // ========================= src/components/shop/ProductCards.jsx =========================
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import RatingStars from '../../components/RatingStars';
+import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '../../redux/features/cart/cartSlice';
 
-const ProductCards = ({ products }) => {
+const ProductCards = ({ products = [] }) => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const [addedItems, setAddedItems] = useState({});
   const { country } = useSelector((state) => state.cart);
 
   const isAEDCountry = country === 'الإمارات' || country === 'دول الخليج';
   const currency = isAEDCountry ? 'د.إ' : 'ر.ع.';
   const exchangeRate = isAEDCountry ? 9.5 : 1;
-
-  const PERFUME_CATEGORIES = new Set([
-    'عطر', 'عطور', 'عطورات',
-    'معطر الجسم', 'معطرات الجسم',
-    'بودي ميست', 'بودي مسك', 'بخاخ الجسم',
-    'معطر الجو'
-  ]);
-
-  const isPerfume = (product) => {
-    const cat = (product?.category || '').trim();
-    return PERFUME_CATEGORIES.has(cat);
-  };
 
   const getBasePriceForCompare = (product) => {
     if (!product) return 0;
@@ -35,47 +21,28 @@ const ProductCards = ({ products }) => {
     return product.regularPrice || product.price || 0;
   };
 
-  const getProductPrice = (product) => {
-    const base = getBasePriceForCompare(product);
-    return base * exchangeRate;
+  const formatPrice = (v) => {
+    if (Number.isInteger(v)) return String(v);
+    const fixed = Number(v).toFixed(2);
+    return fixed.endsWith('.00') ? fixed.slice(0, -3) : fixed;
   };
 
+  // ✅ دائماً أضف إلى السلة (لا تنقل إلى صفحة المنتج)
   const handleAddToCart = (productId, product) => {
-    if (!isPerfume(product)) {
-      navigate(`/shop/${productId}`);
-      return;
-    }
+    const originalPrice = getBasePriceForCompare(product); // بالعملة الأساسية (ر.ع.)
+    dispatch(addToCart({ ...product, price: originalPrice, quantity: 1 }));
 
-    const originalPrice = product.regularPrice || product.price || 0;
-    dispatch(addToCart({ ...product, price: originalPrice }));
     setAddedItems((prev) => ({ ...prev, [productId]: true }));
-    setTimeout(() => {
-      setAddedItems((prev) => ({ ...prev, [productId]: false }));
-    }, 1000);
-  };
-
-  const renderPrice = (product) => {
-    const price = getProductPrice(product);
-    const oldPrice = product.oldPrice ? product.oldPrice * exchangeRate : null;
-    const hasRealDiscount = product.oldPrice && product.oldPrice > getBasePriceForCompare(product);
-
-    return (
-      <div className="space-y-1 text-center">
-        <div className="font-medium text-lg">
-          {price.toFixed(2)} {currency}
-        </div>
-        {hasRealDiscount && oldPrice && (
-          <s className="text-[#9B2D1F] text-sm">{oldPrice.toFixed(2)} {currency}</s>
-        )}
-      </div>
-    );
+    setTimeout(() => setAddedItems((prev) => ({ ...prev, [productId]: false })), 1000);
   };
 
   return (
-    <div className='grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6'>
+    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" dir="rtl">
       {products.map((product) => {
         const basePrice = getBasePriceForCompare(product);
-        const hasRealDiscount = product.oldPrice && product.oldPrice > basePrice;
+        const price = basePrice * exchangeRate;
+        const oldPrice = product?.oldPrice ? product.oldPrice * exchangeRate : null;
+        const hasRealDiscount = product?.oldPrice && product.oldPrice > basePrice;
         const discountPercentage = hasRealDiscount
           ? Math.round(((product.oldPrice - basePrice) / product.oldPrice) * 100)
           : 0;
@@ -83,84 +50,85 @@ const ProductCards = ({ products }) => {
         const qtyCandidate = [product?.stock, product?.quantity, product?.availableQty, product?.available]
           .find((v) => Number.isFinite(Number(v)));
         const availableQty = qtyCandidate !== undefined ? Number(qtyCandidate) : undefined;
-        const isOutOfStock = product?.inStock === false ||
-          (typeof availableQty === 'number' && availableQty <= 0);
+        const isOutOfStock = product?.inStock === false || (typeof availableQty === 'number' && availableQty <= 0);
 
         return (
           <div
             key={product._id}
-            className='product__card bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 relative flex flex-col h-full'
+            className="bg-white rounded-[22px] shadow-[0_8px_20px_rgba(0,0,0,0.08)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.12)] transition-shadow duration-300 relative flex flex-col"
           >
-            {hasRealDiscount && (
-              <div className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full z-10">
-                خصم {discountPercentage}%
-              </div>
-            )}
-
-            <div className='relative flex-grow'>
-              {!isOutOfStock ? (
-                <Link to={`/shop/${product._id}`} className="block h-full">
-                  <div className="h-64 w-full overflow-hidden">
+            {/* الصورة */}
+            <div className="px-3 pt-3">
+              <div className="relative aspect-[4/6] md:aspect-[4/5] rounded-xl overflow-hidden">
+                <Link to={`/shop/${product._id}`} className="block">
+                  <div className="w-full h-60 overflow-hidden rounded-xl">
                     <img
-                      src={product.image?.[0] || "https://via.placeholder.com/300"}
-                      alt={product.name || "صورة المنتج"}
-                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                      src={product.image?.[0] || 'https://via.placeholder.com/300'}
+                      alt={product.name || 'صورة المنتج'}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
                       onError={(e) => {
-                        e.target.src = "https://via.placeholder.com/300";
-                        e.target.alt = "صورة المنتج غير متوفرة";
+                        e.currentTarget.src = 'https://via.placeholder.com/300';
+                        e.currentTarget.alt = 'صورة المنتج غير متوفرة';
                       }}
                     />
                   </div>
                 </Link>
-              ) : (
-                <div className="block h-full cursor-not-allowed select-none relative" aria-disabled="true">
-                  <div className="h-64 w-full overflow-hidden">
-                    <img
-                      src={product.image?.[0] || "https://via.placeholder.com/300"}
-                      alt={product.name || "صورة المنتج"}
-                      className="w-full h-full object-cover opacity-70"
-                      onError={(e) => {
-                        e.target.src = "https://via.placeholder.com/300";
-                        e.target.alt = "صورة المنتج غير متوفرة";
-                      }}
-                    />
+
+                {hasRealDiscount && (
+                  <div className="absolute top-3 left-3 bg-[#42a0ec] text-white text-xs font-bold px-2 py-1 rounded-full z-10 shadow-sm">
+                    خصم {discountPercentage}%
                   </div>
+                )}
+
+                {isOutOfStock && (
                   <div className="absolute inset-0 bg-black/35 flex items-center justify-center">
                     <span className="px-3 py-1 bg-gray-800 text-white text-sm rounded-md">انتهى المنتج</span>
                   </div>
-                </div>
-              )}
-
-              <div className='absolute top-3 right-3 ' >
-                {!isOutOfStock ? (
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleAddToCart(product._id, product);
-                    }}
-                    className={`p-2 text-white rounded-full shadow-md transition-all duration-300 ${
-                      addedItems[product._id] ? 'bg-green-500' : 'bg-[#CB908B]'
-                    }`}
-                    aria-label="إضافة إلى السلة"
-                  >
-                    {addedItems[product._id] ? (
-                      <i className="ri-check-line"></i>
-                    ) : (
-                      <i className="ri-shopping-cart-2-line"></i>
-                    )}
-                  </button>
-                ) : (
-                  <span className="px-2 py-1 bg-gray-400 text-white text-xs rounded-md select-none">
-                    انتهى المنتج
-                  </span>
                 )}
               </div>
             </div>
 
-            <div className='p-4 text-center'>
-              <h4 className="text-lg font-semibold mb-1">{product.name || "اسم المنتج"}</h4>
-              <p className="text-gray-500 text-sm mb-3">{product.category || "فئة غير محددة"}</p>
-              {renderPrice(product)}
+            {/* فاصل ظل */}
+            <div className="relative px-5 mt-2">
+              <div className="h-px bg-gray-200"></div>
+              <div className="absolute left-0 top-full w-full h-4 bg-black/10 rounded-full blur-lg"></div>
+            </div>
+
+            {/* الاسم */}
+            <div className="px-5 mt-3">
+              <div className="w-full flex items-center justify	end gap-2">
+                <h4 className="flex-1 text-[18px] font-extrabold truncate text-right" title={product.name}>
+                  {product.name || 'اسم المنتج'}
+                </h4>
+              </div>
+            </div>
+
+            {/* السعر + زر الإضافة */}
+            <div className="px-5 py-4 mt-auto flex items-end justify-between">
+              <div className="leading-tight text-right">
+                <div className="text-2xl font-bold leading-none">
+                  {formatPrice(price)}{' '}
+                  <span className="text-gray-800 text-xl align-middle">{currency}</span>
+                </div>
+                {oldPrice && oldPrice > price && (
+                  <div className="mt-1 text-sm text-gray-500 line-through">
+                    {formatPrice(oldPrice)}{' '}
+                    <span className="text-gray-500 align-middle">{currency}</span>
+                  </div>
+                )}
+              </div>
+
+              <button
+                disabled={isOutOfStock}
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleAddToCart(product._id, product); }}
+                className={`px-4 py-2 rounded-full text-white text-sm font-semibold transition
+                  ${isOutOfStock ? 'bg-gray-300 cursor-not-allowed' : 'bg-[#42a0ec]'}
+                `}
+                title="أضف إلى السلة"
+              >
+                {addedItems[product._id] ? '✓ تمت الإضافة' : 'أضف إلى السلة'}
+              </button>
             </div>
           </div>
         );

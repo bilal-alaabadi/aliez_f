@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ✅ تعريف خط Janna LT */
+@font-face {
+  font-family: 'Janna LT';
+  src: url('/src/assets/fonts/JannaLT.woff2') format('woff2'),
+       url('/src/assets/fonts/JannaLT.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* ✅ تطبيق الخط بشكل افتراضي على كل المشروع */
+body {
+  font-family: 'Janna LT', sans-serif;
+}

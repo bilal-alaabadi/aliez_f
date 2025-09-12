@@ -5,22 +5,17 @@ import { useFetchProductByIdQuery, useUpdateProductMutation } from '../../../../
 import { useSelector } from 'react-redux';
 import TextInput from '../addProduct/TextInput';
 import SelectInput from '../addProduct/SelectInput';
-// مهم: استورد كمبوننت "التعديل" وليس تبع الإضافة
+// تأكد من مسار الكومبوننت الصحيح
 import UploadImage from '../manageProduct/UploadImag';
 
 const categories = [
   { label: 'أختر منتج', value: '' },
-  { label: 'تفصيل العبايات', value: 'تفصيل العبايات' },
-  { label: 'الشيلات فرنسية', value: 'الشيلات فرنسية' },
-  { label: 'الشيلات سادة', value: 'الشيلات سادة' },
-  { label: 'العطور', value: 'العطور' },
-  { label: 'دريسات', value: 'دريسات' },
-];
-
-const sizes = [
-  { label: 'اختر الحجم', value: '' },
-  { label: '1 كيلو', value: '1 كيلو' },
-  { label: '500 جرام', value: '500 جرام' },
+  { label: 'عطور مستوحاة', value: 'عطور مستوحاة' },
+  { label: 'أدوات المصمم', value: 'أدوات المصمم' },
+  { label: 'العود و البخور', value: 'العود و البخور' },
+  { label: 'Flankers', value: 'Flankers' },
+  { label: 'الزيوت العطرية', value: 'الزيوت العطرية' },
+  { label: 'المتوسم (عطور حصرية)', value: 'المتوسم (عطور حصرية)' },
 ];
 
 const UpdateProduct = () => {
@@ -34,51 +29,34 @@ const UpdateProduct = () => {
   const [product, setProduct] = useState({
     name: '',
     category: '',
-    size: '',
     price: '',
     oldPrice: '',
     description: '',
     image: [],
-    inStock: true, // الخيار الأول والثابت: المنتج متوفر
+    inStock: true,
   });
 
-  const [showSizeField, setShowSizeField] = useState(false);
-
-  // الصور الجديدة (Files)
-  const [newImages, setNewImages] = useState([]);
-  // الصور التي سنبقيها من الصور الحالية (روابط)
-  const [keepImages, setKeepImages] = useState([]);
+  const [newImages, setNewImages] = useState([]);  // ملفات جديدة
+  const [keepImages, setKeepImages] = useState([]); // الروابط المُبقاة
 
   useEffect(() => {
     if (!productData) return;
-
-    // بعض الـ APIs ترجع { product, reviews } — نتعامل مع الحالتين
     const p = productData.product ? productData.product : productData;
 
-    const currentImages = Array.isArray(p?.image)
-      ? p.image
-      : p?.image
-      ? [p.image]
-      : [];
+    const currentImages = Array.isArray(p?.image) ? p.image : p?.image ? [p.image] : [];
 
     setProduct({
       name: p?.name || '',
       category: p?.category || '',
-      size: p?.size || '',
       price: p?.price != null ? String(p.price) : '',
       oldPrice: p?.oldPrice != null ? String(p.oldPrice) : '',
       description: p?.description || '',
       image: currentImages,
-      inStock: typeof p?.inStock === 'boolean' ? p.inStock : true, // افتراضي متوفر
+      inStock: typeof p?.inStock === 'boolean' ? p.inStock : true,
     });
 
     setKeepImages(currentImages);
-    setShowSizeField(p?.category === 'حناء بودر');
   }, [productData]);
-
-  useEffect(() => {
-    setShowSizeField(product.category === 'حناء بودر');
-  }, [product.category]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -88,26 +66,14 @@ const UpdateProduct = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const requiredFields = {
+    const required = {
       'أسم المنتج': product.name,
       'صنف المنتج': product.category,
       'السعر': product.price,
       'الوصف': product.description,
     };
-
-    if (product.category === 'حناء بودر' && !product.size) {
-      alert('الرجاء اختيار الحجم للحناء');
-      return;
-    }
-
-    const missingFields = Object.entries(requiredFields)
-      .filter(([, value]) => !value)
-      .map(([field]) => field);
-
-    if (missingFields.length > 0) {
-      alert(`الرجاء ملء الحقول التالية: ${missingFields.join('، ')}`);
-      return;
-    }
+    const missing = Object.entries(required).filter(([, v]) => !v).map(([k]) => k);
+    if (missing.length) return alert(`الرجاء ملء الحقول التالية: ${missing.join('، ')}`);
 
     try {
       const formData = new FormData();
@@ -116,17 +82,11 @@ const UpdateProduct = () => {
       formData.append('price', product.price);
       formData.append('oldPrice', product.oldPrice || '');
       formData.append('description', product.description);
-      formData.append('size', product.size || '');
       formData.append('author', user?._id || '');
-      formData.append('inStock', product.inStock); // true = متوفر، false = انتهى المنتج
+      formData.append('inStock', product.inStock);
 
-      // الصور التي نُبقيها من القديمة
       formData.append('keepImages', JSON.stringify(keepImages || []));
-
-      // الصور الجديدة
-      if (Array.isArray(newImages) && newImages.length > 0) {
-        newImages.forEach((file) => formData.append('image', file));
-      }
+      newImages.forEach((f) => formData.append('image', f));
 
       await updateProduct({ id, body: formData }).unwrap();
       alert('تم تحديث المنتج بنجاح');
@@ -140,7 +100,7 @@ const UpdateProduct = () => {
   if (fetchError) return <div className="text-center py-8 text-red-500">خطأ في تحميل بيانات المنتج</div>;
 
   return (
-    <div className="container mx-auto mt-8 px-4">
+    <div className="container mx-auto mt-8 px-4" dir="rtl">
       <h2 className="text-2xl font-bold mb-6 text-right">تحديث المنتج</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <TextInput
@@ -161,17 +121,6 @@ const UpdateProduct = () => {
           required
         />
 
-        {showSizeField && (
-          <SelectInput
-            label="حجم الحناء"
-            name="size"
-            value={product.size}
-            onChange={handleChange}
-            options={sizes}
-            required={product.category === 'حناء بودر'}
-          />
-        )}
-
         <TextInput
           label="السعر الحالي"
           name="price"
@@ -191,13 +140,12 @@ const UpdateProduct = () => {
           onChange={handleChange}
         />
 
-        {/* كمبوننت التعديل: يعرض صور حالية + يحذف + يجمع ملفات جديدة */}
         <UploadImage
           name="image"
           id="image"
-          initialImages={product.image}   // صور حالية
-          setImages={setNewImages}        // ملفات جديدة
-          setKeepImages={setKeepImages}   // الصور التي سيتم الإبقاء عليها
+          initialImages={product.image}
+          setImages={setNewImages}
+          setKeepImages={setKeepImages}
         />
 
         <div className="text-right">
@@ -216,7 +164,6 @@ const UpdateProduct = () => {
           />
         </div>
 
-        {/* خيارات حالة التوفر: الخيار الأول ثابت (متوفر) والثاني (انتهى المنتج) */}
         <div className="flex items-center gap-6">
           <label className="flex items-center gap-2">
             <input
@@ -228,7 +175,6 @@ const UpdateProduct = () => {
             />
             <span>المنتج متوفر</span>
           </label>
-
           <label className="flex items-center gap-2">
             <input
               type="radio"

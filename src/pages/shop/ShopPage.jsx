@@ -4,13 +4,21 @@ import { useSearchParams } from 'react-router-dom';
 import ProductCards from './ProductCards';
 import ShopFiltering from './ShopFiltering';
 import { useFetchAllProductsQuery } from '../../redux/features/products/productsApi';
-import imge from "../../assets/متجر-عبايات01.png";
+import imge from "../../assets/تصميم-البنر-الاول0.png";
 
 const filters = {
-  categories: ['الكل', 'تفصيل العبايات', 'الشيلات فرنسية', 'الشيلات سادة', 'العطور', 'دريسات']
+  categories: [
+    'الكل',
+    'عطور مستوحاة',
+    'أدوات المصمم',
+    'العود و البخور',
+    'Flankers',
+    'الزيوت العطرية',
+    'المتوسم (عطور حصرية)'
+  ]
 };
 
-const ShopPage = () => {
+const ShopPage = () => { 
   const [searchParams] = useSearchParams();
 
   const [filtersState, setFiltersState] = useState({
@@ -51,7 +59,7 @@ const ShopPage = () => {
     }
   };
 
-  if (isLoading) return <div className="text-center py-8 text-[#CB908B]">جاري تحميل المنتجات...</div>;
+  if (isLoading) return <div className="text-center py-8 text-[#42a0ec]">جاري تحميل المنتجات...</div>;
   if (error) return <div className="text-center py-8 text-red-500">حدث خطأ أثناء تحميل المنتجات.</div>;
 
   const startProduct = (currentPage - 1) * ProductsPerPage + 1;
@@ -78,7 +86,7 @@ const ShopPage = () => {
           <div className='md:w-1/4'>
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className='md:hidden w-full bg-[#CB908B] text-white py-2 px-4 rounded-md mb-4 flex items-center justify-between  transition-colors'
+              className='md:hidden w-full bg-[#42a0ec] text-white py-2 px-4 rounded-md mb-4 flex items-center justify-between  transition-colors'
             >
               <span>{showFilters ? 'إخفاء الفلاتر' : 'تصفية المنتجات'}</span>
               <svg
@@ -104,11 +112,7 @@ const ShopPage = () => {
 
           {/* Products List */}
           <div className='md:w-3/4'>
-            <div className='flex justify-between items-center mb-6'>
-              <h3 className='text-lg font-medium text-[#CB908B]'>
-                عرض {startProduct}-{endProduct} من {totalProducts} منتج
-              </h3>
-            </div>
+
 
             {products.length > 0 ? (
               <>
@@ -117,7 +121,7 @@ const ShopPage = () => {
                 {/* Pagination */}
                 {totalPages > 1 && (
                   <div className='mt-8 flex flex-col sm:flex-row items-center justify-between gap-4'>
-                    <div className="text-sm text-[#CB908B]">
+                    <div className="text-sm text-[#42a0ec]">
                       الصفحة {currentPage} من {totalPages}
                     </div>
                     <div className='flex gap-2'>
@@ -127,7 +131,7 @@ const ShopPage = () => {
                         className={`px-4 py-2 rounded-md border transition-colors ${
                           currentPage === 1
                             ? 'bg-gray-200 text-gray-500 cursor-not-allowed border-gray-200'
-                            : 'border-[#CB908B] text-[#CB908B] hover:bg-black hover:text-white'
+                            : 'border-[#42a0ec] text-[#42a0ec] hover:bg-black hover:text-white'
                         }`}
                       >
                         السابق
@@ -142,8 +146,8 @@ const ShopPage = () => {
                               onClick={() => handlePageChange(index + 1)}
                               className={`w-10 h-10 flex items-center justify-center rounded-md border transition-colors ${
                                 active
-                                  ? 'bg-[#CB908B] text-white border-[#CB908B] '
-                                  : 'border-[#CB908B] text-[#CB908B] bg-white  hover:text-white'
+                                  ? 'bg-[#42a0ec] text-white border-[#42a0ec] '
+                                  : 'border-[#42a0ec] text-[#42a0ec] bg-white  hover:text-white'
                               }`}
                             >
                               {index + 1}
@@ -158,7 +162,7 @@ const ShopPage = () => {
                         className={`px-4 py-2 rounded-md border transition-colors ${
                           currentPage === totalPages
                             ? 'bg-gray-200 text-gray-500 cursor-not-allowed border-gray-200'
-                            : 'border-[#CB908B] text-[#CB908B]  hover:text-white'
+                            : 'border-[#42a0ec] text-[#42a0ec]  hover:text-white'
                         }`}
                       >
                         التالي
@@ -169,10 +173,10 @@ const ShopPage = () => {
               </>
             ) : (
               <div className="text-center py-12 bg-white rounded-lg shadow-sm">
-                <p className="text-lg text-[#CB908B]">لا توجد منتجات متاحة حسب الفلتر المحدد</p>
+                <p className="text-lg text-[#42a0ec]">لا توجد منتجات متاحة حسب الفلتر المحدد</p>
                 <button
                   onClick={clearFilters}
-                  className="mt-4 px-4 py-2 bg-[#CB908B] text-white rounded-md  transition-colors"
+                  className="mt-4 px-4 py-2 bg-[#42a0ec] text-white rounded-md  transition-colors"
                 >
                   عرض جميع المنتجات
                 </button>

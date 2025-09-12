@@ -171,7 +171,7 @@ const Checkout = () => {
   };
 
   return (
-    <div className="p-4 md:p-6 max-w-6xl mx-auto">
+    <div className="p-4 md:p-6 max-w-6xl mx-auto ">
       {/* Grid متناسق للهاتف والكمبيوتر */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
         {/* ✅ إدخال البيانات أولاً على الهاتف (order-1) ويسار على الكمبيوتر */}
@@ -445,7 +445,7 @@ const Checkout = () => {
               {/* زر إتمام الطلب تحت بطاقة ثواني */}
               <button
                 onClick={makePayment}
-                className="mt-4 w-full bg-[#CB908B] text-white px-6 py-3 rounded-md hover:bg-[#b97d78] transition-colors"
+                className="mt-4 w-full bg-[#42a0ec] text-white px-6 py-3 rounded-md  transition-colors"
                 disabled={products.length === 0}
               >
                 إتمام الطلب

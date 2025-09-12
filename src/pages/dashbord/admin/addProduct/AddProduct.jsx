@@ -6,14 +6,17 @@ import UploadImage from './UploadImage';
 import { useAddProductMutation } from '../../../../redux/features/products/productsApi';
 import { useNavigate } from 'react-router-dom';
 
+// ===== التصنيفات الجديدة فقط =====
 const categories = [
   { label: 'أختر منتج', value: '' },
-  { label: 'تفصيل العبايات', value: 'تفصيل العبايات' },
-  { label: 'الشيلات فرنسية', value: 'الشيلات فرنسية' },
-  { label: 'الشيلات سادة', value: 'الشيلات سادة' },
-  { label: 'العطور', value: 'العطور' },
-  { label: 'دريسات', value: 'دريسات' },
+  { label: 'عطور مستوحاة', value: 'عطور مستوحاة' },
+  { label: 'أدوات المصمم', value: 'أدوات المصمم' },
+  { label: 'العود و البخور', value: 'العود و البخور' },
+  { label: 'Flankers', value: 'Flankers' },
+  { label: 'الزيوت العطرية', value: 'الزيوت العطرية' },
+  { label: 'المتوسم (عطور حصرية)', value: 'المتوسم (عطور حصرية)' },
 ];
+
 
 const AddProduct = () => {
   const { user } = useSelector((state) => state.auth);
@@ -80,7 +83,7 @@ const AddProduct = () => {
   };
 
   return (
-    <div className="container mx-auto mt-8">
+    <div className="container mx-auto mt-8" dir="rtl">
       <h2 className="text-2xl font-bold mb-6">أضافة منتج جديد</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <TextInput
