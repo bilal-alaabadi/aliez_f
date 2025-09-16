@@ -5,7 +5,7 @@ import { LazyMotion, domAnimation, m as motion } from 'framer-motion';
 import card1 from "../../assets/pexels-laurachouette-29899586.jpg";
 import card2 from "../../assets/pexels-shvetsa-5682756.jpg";
 import card3 from "../../assets/istockphoto-880407540-612x612.jpg";
-import card4 from "../../assets/pexels-khulood-abdulghani-195928257-12456277.jpg";
+import card4 from "../../assets/perfume_preserve_color.jpg";
 import card5 from "../../assets/pexels-olga-volkovitskaia-131638009-10819537.jpg";
 import card6 from "../../assets/pexels-khulood-abdulghani-195928257-12456285.jpg";
 import log from "../../assets/logo without background  (1).png";
