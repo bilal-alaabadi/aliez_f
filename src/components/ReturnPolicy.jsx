@@ -1,3 +1,4 @@
+// src/pages/ReturnPolicy.jsx
 import React from 'react';
 
 const ReturnPolicy = () => {
@@ -6,64 +7,61 @@ const ReturnPolicy = () => {
       <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-sm">
         
         {/* العنوان الرئيسي */}
-        <h1 className="text-2xl md:text-3xl font-bold text-center text-[#9B2D1F] mb-6">
+        <h1 className="text-2xl md:text-3xl font-bold text-center text-[#42a0ec] mb-6">
           سياسة الاسترجاع والاستبدال
         </h1>
 
-        {/* مقدمة الصفحة */}
-        <div className="mb-8 text-right space-y-4">
+        {/* مقدمة */}
+        <div className="mb-8 text-right">
           <p className="text-gray-700 text-lg leading-relaxed">
-            في سلطنة عُمان، وُلِدت فكرة <span className="font-semibold text-[#9B2D1F]">RF_COLLECTION</span> 
-            من طموح فتاة تسعى لتعكس أناقة المرأة العمانية بروحٍ عصرية. 
-            بدأت التصاميم من غرفتها باستخدام خامات فاخرة بلمسات مستوحاة من الطابع العماني الساتر، 
-            ومع الإصرار والجودة وصلت منتجاتها إلى النساء الباحثات عن التميز والبساطة حول العالم.
-          </p>
-          <p className="text-gray-600">
-            نؤمن بأن كل قطعة لديكِ فريدة صُممت خصيصًا لكِ، ومع ذلك نحرص أن تكون سياسة الاسترجاع والاستبدال 
-            واضحة وسهلة لضمان راحتكِ ورضاكِ التام.
+            نحرص دائمًا على رضا عملائنا وتقديم أفضل تجربة تسوّق، 
+            لذا نوضح فيما يلي سياسة الاسترجاع والاستبدال الخاصة بنا:
           </p>
         </div>
 
-        {/* البنود الأساسية */}
-        <div className="space-y-6 text-right">
+        {/* البنود */}
+        <div className="space-y-8 text-right">
           
           {/* البند الأول */}
           <div className="border-b border-gray-100 pb-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">الاسترجاع</h3>
-            <p className="text-gray-600 leading-relaxed">
-              نقبل طلبات الاسترجاع فقط في حال وجود خطأ في المقاس مقارنةً بالذي قام العميل بإرفاقه 
-              أو في حال وجود عيب أو تلف في المنتج. 
-              يجب تقديم الطلب خلال <span className="font-semibold text-[#9B2D1F]">24 ساعة من استلام الطلبية</span>.
-            </p>
+            <h3 className="text-xl font-semibold text-[#42a0ec] mb-3">1. شروط الاسترجاع</h3>
+            <ul className="list-disc pr-5 space-y-2 text-gray-700 leading-relaxed">
+              <li>يحق للعميل استرجاع المنتج خلال <span className="font-semibold text-[#42a0ec]">3 – 7 أيام</span> من تاريخ الشراء.</li>
+              <li>يجب أن يكون المنتج بحالته الأصلية غير مستخدم، غير مفتوح، وبغلافه/تغليفه الأصلي.</li>
+              <li>لا يمكن استرجاع أو استبدال المنتجات المفتوحة أو المجرّبة حفاظًا على جودة وسلامة المنتجات.</li>
+              <li>يجب إبراز فاتورة الشراء أو إثبات الدفع عند طلب الاسترجاع.</li>
+            </ul>
           </div>
 
           {/* البند الثاني */}
           <div className="border-b border-gray-100 pb-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">شروط الاستبدال</h3>
-            <p className="text-gray-600 leading-relaxed">
-              لا نقبل استبدال المنتجات التي تم فتح عبواتها الأصلية أو استخدامها، 
-              وذلك لأسباب صحية وضمان الجودة.
-            </p>
+            <h3 className="text-xl font-semibold text-[#42a0ec] mb-3">2. شروط الاستبدال</h3>
+            <ul className="list-disc pr-5 space-y-2 text-gray-700 leading-relaxed">
+              <li>يمكن استبدال المنتج خلال <span className="font-semibold text-[#42a0ec]">7 – 14 يومًا</span> من تاريخ الشراء بنفس الشروط أعلاه (غير مفتوح، بحالته الأصلية).</li>
+              <li>في حال وجود <span className="text-[#42a0ec] font-semibold">عيب مصنعي</span> في المنتج، يحق للعميل الاستبدال أو الاسترجاع فورًا بعد التحقق من الحالة.</li>
+            </ul>
           </div>
 
           {/* البند الثالث */}
           <div className="border-b border-gray-100 pb-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">المنتجات التالفة</h3>
-            <p className="text-gray-600 leading-relaxed">
-              في حال استلام منتج تالف، يرجى التواصل معنا خلال 24 ساعة مع إرفاق صور توضح المشكلة بوضوح.
-            </p>
+            <h3 className="text-xl font-semibold text-[#42a0ec] mb-3">3. المنتجات غير القابلة للاسترجاع أو الاستبدال</h3>
+            <ul className="list-disc pr-5 space-y-2 text-gray-700 leading-relaxed">
+              <li>العطور المفتوحة أو المجرّبة.</li>
+              <li>المنتجات التالفة نتيجة سوء التخزين أو الاستخدام من قبل العميل.</li>
+              <li>العروض الترويجية أو الهدايا المجانية المرتبطة بالطلب (إلا في حال وجود عيب مصنعي).</li>
+            </ul>
           </div>
 
           {/* البند الرابع */}
-          <div className="pb-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">تكاليف الشحن</h3>
-            <p className="text-gray-600 leading-relaxed">
-              نتحمل تكاليف الشحن فقط في حال كان الخطأ من جانبنا (منتج تالف أو غير مطابق للوصف). 
-              في الحالات الأخرى تكون تكاليف الشحن على العميل.
-            </p>
+          <div>
+            <h3 className="text-xl font-semibold text-[#42a0ec] mb-3">4. آلية الاسترجاع</h3>
+            <ul className="list-disc pr-5 space-y-2 text-gray-700 leading-relaxed">
+              <li>يتم استرجاع المبلغ بنفس وسيلة الدفع التي استخدمها العميل.</li>
+              <li>قد يستغرق إرجاع المبلغ من <span className="font-semibold text-[#42a0ec]">3 – 14 يوم عمل</span> بحسب البنك أو الجهة المزودة لوسيلة الدفع.</li>
+            </ul>
           </div>
-        </div>
 
+        </div>
       </div>
     </div>
   );

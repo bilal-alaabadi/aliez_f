@@ -2,12 +2,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LazyMotion, domAnimation, m as motion } from 'framer-motion';
-import card1 from "../../assets/pexels-laurachouette-29899586.jpg";
+import card1 from "../../assets/ChatGPT Image Sep 22, 2025, 08_56_16 PM.png";
 import card2 from "../../assets/pexels-shvetsa-5682756.jpg";
 import card3 from "../../assets/istockphoto-880407540-612x612.jpg";
 import card4 from "../../assets/perfume_preserve_color.jpg";
 import card5 from "../../assets/pexels-olga-volkovitskaia-131638009-10819537.jpg";
-import card6 from "../../assets/pexels-khulood-abdulghani-195928257-12456285.jpg";
+import card6 from "../../assets/IMG_2812.png";
 import log from "../../assets/logo without background  (1).png";
 
 // Hook خفيف لتحديد البريكبوينت (md)
@@ -31,7 +31,7 @@ const cards = [
   { id: 3, image: card3, trend: '', title: 'العود و البخور' },
   { id: 4, image: card4, trend: '', title: 'Flankers' },
   { id: 5, image: card5, trend: '', title: 'الزيوت العطرية' },
-  { id: 6, image: card6, trend: '', title: 'المتوسم (عطور حصرية)' },
+  { id: 6, image: card6, trend: '', title: 'المتوسم' },
 ];
 
 const categoryMap = {
@@ -40,19 +40,17 @@ const categoryMap = {
   'العود و البخور': 'العود و البخور',
   'Flankers': 'Flankers',
   'الزيوت العطرية': 'الزيوت العطرية',
-  'المتوسم (عطور حصرية)': 'المتوسم (عطور حصرية)',
+  'المتوسم': 'المتوسم',
 };
 
 // يحسب اتجاه الدخول بسلاسة حسب العمود
 const getInitial = (index, isMd) => {
   if (isMd) {
-    // md أو أكبر: 3 أعمدة => 0 يسار، 1 وسط (fade-up)، 2 يمين
     const col = index % 3;
     if (col === 0) return { opacity: 0, x: -40, y: 0 };
     if (col === 2) return { opacity: 0, x: 40, y: 0 };
     return { opacity: 0, x: 0, y: 24 };
   } else {
-    // شاشات صغيرة: عمودان => الزوجي من اليسار، الفردي من اليمين
     const fromLeft = index % 2 === 0;
     return { opacity: 0, x: fromLeft ? -40 : 40, y: 0 };
   }
@@ -68,7 +66,6 @@ const HeroSection = () => {
     navigate(`/shop?${search}`);
   };
 
-  // إعدادات انتقال spring ناعمة
   const spring = { type: 'spring', stiffness: 110, damping: 18, mass: 0.4 };
 
   return (
@@ -98,20 +95,17 @@ const HeroSection = () => {
               onClick={() => handleClick(card.title)}
               type="button"
               aria-label={`افتح قسم ${card.title}`}
-              className="relative overflow-hidden rounded-[28px] shadow-xl hover:shadow-2xl transition-shadow duration-300 aspect-[4/3] focus:outline-none focus:ring-2 focus:ring-amber-500 transform-gpu will-change-transform"
+              // 👇 التعديل هنا: جعل البطاقات أطول
+              className="relative overflow-hidden rounded-[28px] shadow-xl hover:shadow-2xl transition-shadow duration-300 aspect-[3/4] md:aspect-[4/5] focus:outline-none focus:ring-2 focus:ring-amber-500 transform-gpu will-change-transform"
               initial={getInitial(index, isMd)}
               whileInView={{ opacity: 1, x: 0, y: 0 }}
-              viewport={{
-                once: false,          // يعيد الأنميشن لو خرج/دخل ثانية (اختياري)
-                amount: 0.25,         // يبدأ بدري شوية
-                margin: '0px 0px -10% 0px', // يخفّف التقطيع بتفعيل أبكر
-              }}
+              viewport={{ once: false, amount: 0.25, margin: '0px 0px -10% 0px' }}
               transition={{ ...spring, duration: 0.5, delay: (index % 3) * 0.05 + Math.floor(index / 3) * 0.1 }}
             >
               <img
                 src={card.image}
                 alt={card.title}
-                className="w-full h-full object-cover object-center transform-gpu will-change-transform"
+                className="w-full h-full object-cover object-center"
                 loading="lazy"
                 decoding="async"
                 fetchpriority="low"
