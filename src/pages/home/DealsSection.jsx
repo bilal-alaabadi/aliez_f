@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import img2 from "../../assets/بنر-صغير--03.png";
-import img1 from "../../assets/بنر-صغير-04.png";
+import img1 from "../../assets/تعديل-بنر-صغير.png";
 
 const DealsSection = () => {
   const slide = (direction) => ({

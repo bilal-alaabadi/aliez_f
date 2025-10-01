@@ -1,6 +1,6 @@
 // PromoBanner.jsx
 import React, { useRef, useEffect } from 'react';
-import bannerImage from "../../assets/بنر-متجر-01.png";
+import bannerImage from "../../assets/تعديل-البنر.png";
 
 const PromoBanner = () => {
   const imgRef = useRef(null);

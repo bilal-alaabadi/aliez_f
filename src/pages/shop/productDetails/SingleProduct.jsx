@@ -169,9 +169,9 @@ const SingleProduct = () => {
             </section>
 
             {/* Reviews */}
-            <section className='section__container mt-8' dir='rtl'>
+            {/* <section className='section__container mt-8' dir='rtl'>
                 <ReviewsCard productReviews={productReviews} />
-            </section>
+            </section> */}
         </>
     );
 };
