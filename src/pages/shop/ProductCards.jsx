@@ -1,4 +1,3 @@
-// ========================= src/components/shop/ProductCards.jsx =========================
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -27,9 +26,8 @@ const ProductCards = ({ products = [] }) => {
     return fixed.endsWith('.00') ? fixed.slice(0, -3) : fixed;
   };
 
-  // ✅ دائماً أضف إلى السلة (لا تنقل إلى صفحة المنتج)
   const handleAddToCart = (productId, product) => {
-    const originalPrice = getBasePriceForCompare(product); // بالعملة الأساسية (ر.ع.)
+    const originalPrice = getBasePriceForCompare(product);
     dispatch(addToCart({ ...product, price: originalPrice, quantity: 1 }));
 
     setAddedItems((prev) => ({ ...prev, [productId]: true }));
@@ -47,6 +45,7 @@ const ProductCards = ({ products = [] }) => {
           ? Math.round(((product.oldPrice - basePrice) / product.oldPrice) * 100)
           : 0;
 
+        // تحديد إذا كان المنتج منتهي
         const qtyCandidate = [product?.stock, product?.quantity, product?.availableQty, product?.available]
           .find((v) => Number.isFinite(Number(v)));
         const availableQty = qtyCandidate !== undefined ? Number(qtyCandidate) : undefined;
@@ -55,9 +54,8 @@ const ProductCards = ({ products = [] }) => {
         return (
           <div
             key={product._id}
-            className="bg-white rounded-[22px] shadow-[0_8px_20px_rgba(0,0,0,0.08)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.12)] transition-shadow duration-300 relative flex flex-col"
+            className="bg-white rounded-[22px] shadow-[0_8px_20px_rgba(0,0,0,0.08)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.12)] transition-shadow duration-300 flex flex-col"
           >
-            {/* الصورة */}
             <div className="px-3 pt-3">
               <div className="relative aspect-[4/6] md:aspect-[4/5] rounded-xl overflow-hidden">
                 <Link to={`/shop/${product._id}`} className="block">
@@ -80,54 +78,41 @@ const ProductCards = ({ products = [] }) => {
                     خصم {discountPercentage}%
                   </div>
                 )}
-
-                {isOutOfStock && (
-                  <div className="absolute inset-0 bg-black/35 flex items-center justify-center">
-                    <span className="px-3 py-1 bg-gray-800 text-white text-sm rounded-md">انتهى المنتج</span>
-                  </div>
-                )}
               </div>
             </div>
 
-            {/* فاصل ظل */}
             <div className="relative px-5 mt-2">
               <div className="h-px bg-gray-200"></div>
               <div className="absolute left-0 top-full w-full h-4 bg-black/10 rounded-full blur-lg"></div>
             </div>
 
-            {/* الاسم */}
             <div className="px-5 mt-3">
-              <div className="w-full flex items-center justify	end gap-2">
-                <h4 className="flex-1 text-[18px] font-extrabold truncate text-right" title={product.name}>
-                  {product.name || 'اسم المنتج'}
-                </h4>
-              </div>
+              <h4 className="text-[18px] font-extrabold truncate text-right" title={product.name}>
+                {product.name || 'اسم المنتج'}
+              </h4>
             </div>
 
-            {/* السعر + زر الإضافة */}
             <div className="px-5 py-4 mt-auto flex items-end justify-between">
               <div className="leading-tight text-right">
                 <div className="text-2xl font-bold leading-none">
-                  {formatPrice(price)}{' '}
-                  <span className="text-gray-800 text-xl align-middle">{currency}</span>
+                  {formatPrice(price)} <span className="text-gray-800 text-xl align-middle">{currency}</span>
                 </div>
                 {oldPrice && oldPrice > price && (
                   <div className="mt-1 text-sm text-gray-500 line-through">
-                    {formatPrice(oldPrice)}{' '}
-                    <span className="text-gray-500 align-middle">{currency}</span>
+                    {formatPrice(oldPrice)} <span className="text-gray-500 align-middle">{currency}</span>
                   </div>
                 )}
               </div>
 
               <button
-                disabled={isOutOfStock}
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleAddToCart(product._id, product); }}
-                className={`px-4 py-2 rounded-full text-white text-sm font-semibold transition
-                  ${isOutOfStock ? 'bg-gray-300 cursor-not-allowed' : 'bg-[#42a0ec]'}
-                `}
-                title="أضف إلى السلة"
+                className={`px-4 py-2 rounded-full text-white text-sm font-semibold transition ${
+                  isOutOfStock ? 'bg-gray-300 cursor-not-allowed' : 'bg-[#42a0ec]'
+                }`}
+                title={isOutOfStock ? 'انتهى المنتج' : 'أضف إلى السلة'}
+                disabled={isOutOfStock}
               >
-                {addedItems[product._id] ? '✓ تمت الإضافة' : 'أضف إلى السلة'}
+                {isOutOfStock ? 'انتهى المنتج' : (addedItems[product._id] ? '✓ تمت الإضافة' : 'أضف إلى السلة')}
               </button>
             </div>
           </div>

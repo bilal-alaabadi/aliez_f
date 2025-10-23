@@ -34,6 +34,8 @@ const UpdateProduct = () => {
     description: '',
     image: [],
     inStock: true,
+    // ✅ حقل المخزون
+    stock: '',
   });
 
   const [newImages, setNewImages] = useState([]);  // ملفات جديدة
@@ -53,6 +55,8 @@ const UpdateProduct = () => {
       description: p?.description || '',
       image: currentImages,
       inStock: typeof p?.inStock === 'boolean' ? p.inStock : true,
+      // ✅ تعبئة المخزون الحالي
+      stock: p?.stock != null ? String(p.stock) : '',
     });
 
     setKeepImages(currentImages);
@@ -61,6 +65,20 @@ const UpdateProduct = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setProduct((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // ✅ دوال التحكم بأزرار +/- للمخزون
+  const incStock = () => {
+    setProduct((prev) => {
+      const curr = Math.max(0, Number(prev.stock || 0));
+      return { ...prev, stock: String(curr + 1) };
+    });
+  };
+  const decStock = () => {
+    setProduct((prev) => {
+      const curr = Math.max(0, Number(prev.stock || 0));
+      return { ...prev, stock: String(Math.max(0, curr - 1)) };
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -84,6 +102,11 @@ const UpdateProduct = () => {
       formData.append('description', product.description);
       formData.append('author', user?._id || '');
       formData.append('inStock', product.inStock);
+
+      // ✅ إرسال قيمة المخزون
+      if (product.stock !== '') {
+        formData.append('stock', String(Math.max(0, Number(product.stock))));
+      }
 
       formData.append('keepImages', JSON.stringify(keepImages || []));
       newImages.forEach((f) => formData.append('image', f));
@@ -139,6 +162,42 @@ const UpdateProduct = () => {
           value={product.oldPrice}
           onChange={handleChange}
         />
+
+        {/* ✅ زر/حقل المخزون */}
+        <div className="flex items-end gap-3">
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              المخزون (عدد القطع)
+            </label>
+            <input
+              type="number"
+              min={0}
+              name="stock"
+              value={product.stock}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
+              placeholder="0"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={decStock}
+              className="px-3 py-2 border rounded-md hover:bg-gray-50"
+              aria-label="إنقاص المخزون"
+            >
+              −
+            </button>
+            <button
+              type="button"
+              onClick={incStock}
+              className="px-3 py-2 border rounded-md hover:bg-gray-50"
+              aria-label="زيادة المخزون"
+            >
+              +
+            </button>
+          </div>
+        </div>
 
         <UploadImage
           name="image"

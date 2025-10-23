@@ -28,8 +28,23 @@ const Checkout = () => {
   const currency = country === "دول الخليج" ? "د.إ" : "ر.ع.";
   const exchangeRate = country === "دول الخليج" ? 9.5 : 1; // للعرض فقط
 
+  // ✅ فئات العطور (التي تُحتسب ضمن كل 3 = +4 ر.ع)
+  const PERFUME_CATEGORIES = useMemo(
+    () => new Set(["عطور مستوحاة", "Flankers", "الزيوت العطرية", "المتوسم (عطور حصرية)"]),
+    []
+  );
+
+  // ✅ احسب عدد وحدات العطور في السلة (بالكمية)
+  const perfumeUnits = useMemo(() => {
+    return products.reduce((sum, p) => {
+      const cat = (p.category || "").trim();
+      const qty = Math.max(0, Number(p.quantity || 0));
+      return PERFUME_CATEGORIES.has(cat) ? sum + qty : sum;
+    }, 0);
+  }, [products, PERFUME_CATEGORIES]);
+
   // رسوم الشحن الأساسية (تُخزَّن وتُحسب دائماً بالريال العُماني)
-  const baseShippingFee = useMemo(() => {
+  const baseShippingFeeOMR = useMemo(() => {
     if (country === "دول الخليج") {
       // الإمارات = 4 ر.ع ، غيرها = 5 ر.ع
       return gulfCountry === "الإمارات" ? 4 : 5;
@@ -38,8 +53,16 @@ const Checkout = () => {
     return 2;
   }, [country, gulfCountry]);
 
+  // ✅ الشحن الفعلي بالريال العُماني مع إضافة +4 لكل 3 عطور عند دول الخليج
+  const shippingFeeOMR = useMemo(() => {
+    if (country !== "دول الخليج") return baseShippingFeeOMR;
+    const extraBlocks = Math.floor(perfumeUnits / 3); // كل 3
+    const extra = extraBlocks * 4; // +4 ر.ع لكل بلوك
+    return baseShippingFeeOMR + extra;
+  }, [country, baseShippingFeeOMR, perfumeUnits]);
+
   // بعد ذلك تُعرَض بحسب العملة المختارة (قد تُحوَّل إلى AED إن كانت دول الخليج)
-  const shippingFee = baseShippingFee * exchangeRate;
+  const shippingFee = shippingFeeOMR * exchangeRate;
 
   // هل يوجد ضمن الطلب "تفصيل عباية"؟
   const hasTailoredAbaya = useMemo(() => {
@@ -150,8 +173,8 @@ const Checkout = () => {
 
   const displayTotal = useMemo(() => {
     if (payDepositEffective) return (10 * exchangeRate).toFixed(2); // 10 ر.ع تُحوَّل عند الحاجة
-    return ((totalPrice + baseShippingFee) * exchangeRate).toFixed(2);
-  }, [payDepositEffective, exchangeRate, totalPrice, baseShippingFee]);
+    return ((totalPrice + shippingFeeOMR) * exchangeRate).toFixed(2);
+  }, [payDepositEffective, exchangeRate, totalPrice, shippingFeeOMR]);
 
   const renderMeasurementsDetails = (m) => {
     if (!m) return null;
@@ -253,8 +276,9 @@ const Checkout = () => {
                     <option value="أخرى">أخرى</option>
                   </select>
                   <p className="text-xs text-gray-600 mt-2">
-                    الشحن: الإمارات <span className="font-semibold">4 ر.ع</span> — بقية دول الخليج{" "}
-                    <span className="font-semibold">5 ر.ع</span>.
+                    الشحن يبدأ من: الإمارات <span className="font-semibold">4 ر.ع</span> — بقية دول الخليج{" "}
+                    <span className="font-semibold">5 ر.ع</span>، ويُضاف <span className="font-semibold">+4 ر.ع</span> لكل{" "}
+                    <span className="font-semibold">3 عطور</span>.
                   </p>
                 </div>
               )}

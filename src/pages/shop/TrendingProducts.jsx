@@ -1,6 +1,5 @@
-// ========================= src/components/shop/TrendingProducts.jsx =========================
 import React, { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useFetchAllProductsQuery } from '../../redux/features/products/productsApi';
 import { useSelector, useDispatch } from 'react-redux';
 import { addToCart } from '../../redux/features/cart/cartSlice';
@@ -8,6 +7,7 @@ import log from "../../assets/logo without background  (1).png";
 
 const TrendingProducts = ({ onProductsLoaded }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [visibleProducts, setVisibleProducts] = useState(4);
   const { country } = useSelector((s) => s.cart);
 
@@ -44,22 +44,42 @@ const TrendingProducts = ({ onProductsLoaded }) => {
   const formatPrice = (v) =>
     Number.isInteger(v) ? String(v) : Number(v).toFixed(2).replace(/\.00$/, '');
 
+  const resolveAvailableQty = (product) => {
+    const candidate = [product?.stock, product?.quantity, product?.availableQty, product?.available]
+      .find((v) => Number.isFinite(Number(v)));
+    return candidate !== undefined ? Number(candidate) : undefined;
+  };
+
   const handleAddToCart = (product, price) => {
+    const basePrice = Number(price / exchangeRate);
+
+    const stock = resolveAvailableQty(product);
+    const inStock = product?.inStock !== false && (typeof stock === 'undefined' || stock > 0);
+
+    // امنع الإضافة إذا غير متوفر أو المخزون صفر
+    if (!inStock) return;
+
     dispatch(
       addToCart({
         _id: product._id,
+        productId: product._id,
         name: product.name,
-        image: product.image?.[0],
-        price: Number(price / exchangeRate),
+        image: Array.isArray(product.image) ? product.image : [product.image],
+        price: basePrice, // بالعملة الأساسية (ر.ع.)
         quantity: 1,
         category: product.category,
+        stock: typeof stock === 'number' ? stock : undefined, // مرّر المخزون لضبط الحد
+        inStock: !!inStock,
       })
     );
+
+    // الانتقال لصفحة المنتج الفردي بعد إضافة المنتج للسلة
+    navigate(`/shop/${product._id}`);
   };
 
   if (isLoading) {
     return (
-      <section className="">
+      <section>
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-white/90">
           <img
             src={log}
@@ -82,7 +102,6 @@ const TrendingProducts = ({ onProductsLoaded }) => {
 
   return (
     <section className="section__container" dir="rtl">
-      {/* العنوان */}
       <div className="relative text-center">
         <h2 className="text-[32px] font-normal text-[#C9A33A] mb-1">أحدث المنتجات</h2>
         <div className="flex items-center justify-center gap-3">
@@ -97,7 +116,6 @@ const TrendingProducts = ({ onProductsLoaded }) => {
         </div>
       </div>
 
-      {/* المنتجات */}
       <div className="mt-12">
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {products.slice(0, visibleProducts).map((product) => {
@@ -108,17 +126,14 @@ const TrendingProducts = ({ onProductsLoaded }) => {
                 ? Math.round(((oldPrice - price) / oldPrice) * 100)
                 : 0;
 
-            const qtyCandidate = [product?.stock, product?.quantity, product?.availableQty, product?.available]
-              .find((v) => Number.isFinite(Number(v)));
-            const availableQty = qtyCandidate !== undefined ? Number(qtyCandidate) : undefined;
+            const availableQty = resolveAvailableQty(product);
             const isOutOfStock = product?.inStock === false || (typeof availableQty === 'number' && availableQty <= 0);
 
             return (
               <div
                 key={product._id}
-                className="bg-white rounded-[22px] shadow-[0_8px_20px_rgba(0,0,0,0.08)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.12)] transition-shadow duration-300 relative flex flex-col"
+                className="bg-white rounded-[22px] shadow-[0_8px_20px_rgba(0,0,0,0.08)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.12)] transition-shadow duration-300 flex flex-col"
               >
-                {/* صورة المنتج — تملأ الجزء العلوي */}
                 <Link to={`/shop/${product._id}`} className="block">
                   <div className="px-3 pt-3">
                     <div className="relative aspect-[4/6] md:aspect-[4/5] w-full rounded-xl overflow-hidden">
@@ -141,52 +156,38 @@ const TrendingProducts = ({ onProductsLoaded }) => {
                   </div>
                 </Link>
 
-                {/* فاصل ظل ناعم */}
                 <div className="relative px-5 mt-2">
                   <div className="h-px bg-gray-200"></div>
                   <div className="absolute left-0 top-full w-full h-4 bg-black/10 rounded-full blur-lg"></div>
                 </div>
 
-                {/* اسم المنتج */}
                 <div className="px-5 mt-3">
-                  <div className="w-full flex items-center justify-end gap-2">
-                    <h4 className="flex-1 text-[18px] font-extrabold truncate text-right">
-                      {product.name || 'اسم المنتج'}
-                    </h4>
-                  </div>
+                  <h4 className="text-[18px] font-extrabold truncate text-right">
+                    {product.name || 'اسم المنتج'}
+                  </h4>
                 </div>
 
-                {/* طبقة انتهاء المخزون */}
-                {isOutOfStock && (
-                  <div className="absolute inset-0 bg-black/35 rounded-[22px] flex items-center justify-center">
-                    <span className="px-3 py-1 bg-gray-800 text-white text-sm rounded-md">انتهى المنتج</span>
-                  </div>
-                )}
-
-                {/* السعر + زر (أضف إلى السلة) */}
                 <div className="px-5 py-4 mt-auto flex items-end justify-between">
                   <div className="leading-tight text-right">
                     <div className="text-2xl font-bold leading-none">
-                      {formatPrice(price)}{' '}
-                      <span className="text-gray-800 text-xl align-middle">{currency}</span>
+                      {formatPrice(price)} <span className="text-gray-800 text-xl align-middle">{currency}</span>
                     </div>
-
                     {oldPrice && oldPrice > price && (
                       <div className="mt-1 text-sm text-gray-500 line-through">
-                        {formatPrice(oldPrice)}{' '}
-                        <span className="text-gray-500 align-middle">{currency}</span>
+                        {formatPrice(oldPrice)} <span className="text-gray-500 align-middle">{currency}</span>
                       </div>
                     )}
                   </div>
 
                   <button
-                    disabled={isOutOfStock}
                     onClick={() => handleAddToCart(product, price)}
-                    className={`px-4 py-2 rounded-full text-white text-sm font-semibold transition
-                      ${isOutOfStock ? 'bg-gray-300 cursor-not-allowed' : 'bg-[#42a0ec] '}
-                    `}
+                    className={`px-4 py-2 rounded-full text-white text-sm font-semibold transition ${
+                      isOutOfStock ? 'bg-gray-300 cursor-not-allowed' : 'bg-[#42a0ec]'
+                    }`}
+                    disabled={isOutOfStock}
+                    title={isOutOfStock ? 'انتهى المنتج' : 'أضف إلى السلة'}
                   >
-                    أضف إلى السلة
+                    {isOutOfStock ? 'انتهى المنتج' : 'أضف إلى السلة'}
                   </button>
                 </div>
               </div>
@@ -195,7 +196,6 @@ const TrendingProducts = ({ onProductsLoaded }) => {
         </div>
       </div>
 
-      {/* زر عرض المزيد */}
       {visibleProducts < products.length && (
         <div className="text-center mt-8">
           <button

@@ -17,7 +17,6 @@ const categories = [
   { label: 'المتوسم (عطور حصرية)', value: 'المتوسم (عطور حصرية)' },
 ];
 
-
 const AddProduct = () => {
   const { user } = useSelector((state) => state.auth);
 
@@ -28,6 +27,7 @@ const AddProduct = () => {
     description: '',
     oldPrice: '',
     inStock: true, // متوفر افتراضياً
+    stock: '',     // ✅ جديد: كمية المخزون
   });
 
   const [image, setImage] = useState([]);
@@ -52,12 +52,13 @@ const AddProduct = () => {
       'أسم المنتج': product.name,
       'صنف المنتج': product.category,
       'السعر': product.price,
+      'الكمية في المخزون': product.stock,   // ✅ تحقق من الكمية
       'الوصف': product.description,
       'الصور': image.length > 0,
     };
 
     const missing = Object.entries(required)
-      .filter(([, v]) => !v)
+      .filter(([, v]) => !v && v !== 0)
       .map(([k]) => k);
 
     if (missing.length) {
@@ -65,15 +66,38 @@ const AddProduct = () => {
       return;
     }
 
+    const stockNum = Number(product.stock);
+    if (!Number.isFinite(stockNum) || stockNum < 0) {
+      alert('الكمية في المخزون يجب أن تكون رقمًا 0 أو أكبر');
+      return;
+    }
+
+    const priceNum = Number(product.price);
+    if (!Number.isFinite(priceNum) || priceNum <= 0) {
+      alert('السعر غير صالح');
+      return;
+    }
+
     try {
       await addProduct({
         ...product,
+        price: priceNum,
+        stock: stockNum,          // ✅ إرسال الكمية كرقم
+        oldPrice: product.oldPrice === '' ? undefined : Number(product.oldPrice),
         image,
         author: user?._id,
       }).unwrap();
 
       alert('تمت أضافة المنتج بنجاح');
-      setProduct({ name: '', category: '', oldPrice: '', price: '', description: '', inStock: true });
+      setProduct({
+        name: '',
+        category: '',
+        oldPrice: '',
+        price: '',
+        description: '',
+        inStock: true,
+        stock: '', // إعادة التعيين
+      });
       setImage([]);
       navigate('/shop');
     } catch (err) {
@@ -117,6 +141,16 @@ const AddProduct = () => {
           type="number"
           placeholder="50"
           value={product.price}
+          onChange={handleChange}
+        />
+
+        {/* ✅ جديد: كمية المخزون */}
+        <TextInput
+          label="الكمية في المخزون"
+          name="stock"
+          type="number"
+          placeholder="0"
+          value={product.stock}
           onChange={handleChange}
         />
 

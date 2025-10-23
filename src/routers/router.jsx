@@ -27,15 +27,16 @@ import SuccessRedirect from "../components/SuccessRedirect";
 import ErrorRedirect from "../components/ErrorRedirect ";
 import ReturnPolicy from "../components/ReturnPolicy";
 import About from "../components/About";
+
 const router = createBrowserRouter([ 
-              {
-        path:"/SuccessRedirect",
-        element:<SuccessRedirect  />
-      },
-                    {
-        path:"/cancel",
-        element:<ErrorRedirect/>
-      },
+  {
+    path:"/SuccessRedirect",
+    element:<SuccessRedirect  />
+  },
+  {
+    path:"/cancel",
+    element:<ErrorRedirect/>
+  },
   {
     path: "/",
     element:<App/>,
@@ -44,16 +45,13 @@ const router = createBrowserRouter([
       {path:"/categories/:categoryName",element:<CategoryPage/>},
       {path:"/search",element:<Search/>},
       {path:"Shop",element:<ShopPage/>},
-            {path:"About",element:<About/>},
-
+      {path:"About",element:<About/>},
       {path:"/return-policy",element:<ReturnPolicy/>},
-
       {path:"Shop/:id",element:<SingleProduct/>},
       {
         path:"/success",
         element:<PaymentSuccess />
       },
-
       {
         path:"/orders/:orderId",
         element : <OrderDetails />
@@ -78,12 +76,10 @@ const router = createBrowserRouter([
       { path: 'reviews', element: <UserReviews /> },
   
       // admin routes
-      // Add admin-specific routes here in the same format
-      // admin routes (only accessible by admin) TODO: private routes with role field
       {
         path: "admin",
         element: (
-          <PrivateRoute role="admin">
+          <PrivateRoute role="admin" customCheck={(user) => user?.email !== "Mohammed@gmail.com"}>
             <AdminDMain/>
           </PrivateRoute>
         ),
@@ -91,7 +87,7 @@ const router = createBrowserRouter([
       {
         path: "add-product",
         element: (
-          <PrivateRoute role="admin">
+          <PrivateRoute role="admin" customCheck={(user) => user?.email !== "Mohammed@gmail.com"}>
             <AddProduct />
           </PrivateRoute>
         ),
@@ -99,7 +95,7 @@ const router = createBrowserRouter([
       {
         path: "manage-products",
         element: (
-          <PrivateRoute role="admin">
+          <PrivateRoute role="admin" customCheck={(user) => user?.email !== "Mohammed@gmail.com"}>
             <MangeProduct />
           </PrivateRoute>
         ),
@@ -107,7 +103,7 @@ const router = createBrowserRouter([
       {
         path: "update-product/:id",
         element: (
-          <PrivateRoute role="admin">
+          <PrivateRoute role="admin" customCheck={(user) => user?.email !== "Mohammed@gmail.com"}>
             < UpdateProduct/>
           </PrivateRoute>
         ),
@@ -115,11 +111,13 @@ const router = createBrowserRouter([
       {
         path: "users",
         element: (
-          <PrivateRoute role="admin">
+          <PrivateRoute role="admin" customCheck={(user) => user?.email !== "Mohammed@gmail.com"}>
             <MangeUser />
           </PrivateRoute>
         ),
       },
+      // اترك manage-orders بدون customCheck حتى يكون مسموحًا للجميع من الأدمن، 
+      // وبنفس الوقت كل الصفحات الأخرى فيها منع مخصّص لحساب Mohammed@gmail.com
       {
         path: "manage-orders",
         element: (
