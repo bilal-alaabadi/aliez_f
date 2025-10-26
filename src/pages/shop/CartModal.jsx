@@ -1,3 +1,4 @@
+// CartModal.jsx
 import React from 'react';
 import { RiCloseLine } from "react-icons/ri";
 import { useSelector, useDispatch } from 'react-redux';

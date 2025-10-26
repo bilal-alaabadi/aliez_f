@@ -28,7 +28,7 @@ const Checkout = () => {
   const currency = country === "دول الخليج" ? "د.إ" : "ر.ع.";
   const exchangeRate = country === "دول الخليج" ? 9.5 : 1; // للعرض فقط
 
-  // ✅ فئات العطور (التي تُحتسب ضمن كل 3 = +4 ر.ع)
+  // ✅ فئات العطور (التي تُحتسب ضمن قاعدة الزيادة)
   const PERFUME_CATEGORIES = useMemo(
     () => new Set(["عطور مستوحاة", "Flankers", "الزيوت العطرية", "المتوسم (عطور حصرية)"]),
     []
@@ -53,11 +53,12 @@ const Checkout = () => {
     return 2;
   }, [country, gulfCountry]);
 
-  // ✅ الشحن الفعلي بالريال العُماني مع إضافة +4 لكل 3 عطور عند دول الخليج
+  // ✅ الشحن الفعلي بالريال العُماني:
+  // لا زيادة حتى 3 عطور. من العطر الرابع تبدأ الزيادة، ثم كل 3 عطور إضافية +4 ر.ع
   const shippingFeeOMR = useMemo(() => {
     if (country !== "دول الخليج") return baseShippingFeeOMR;
-    const extraBlocks = Math.floor(perfumeUnits / 3); // كل 3
-    const extra = extraBlocks * 4; // +4 ر.ع لكل بلوك
+    const extraBlocks = Math.max(0, Math.floor((perfumeUnits - 1) / 3));
+    const extra = extraBlocks * 4;
     return baseShippingFeeOMR + extra;
   }, [country, baseShippingFeeOMR, perfumeUnits]);
 
@@ -93,9 +94,18 @@ const Checkout = () => {
   // حالة المقدم الفعلية: تُلغى قسرًا في دول الخليج
   const payDepositEffective = country === "دول الخليج" ? false : payDeposit;
 
+  // ✅ السماح بالطلب فقط إذا كانت دول الخليج مختارة وتم اختيار دولة خليجية
+  const allowedByRegion = country === "دول الخليج" && !!gulfCountry;
+
   // ✅ نستدعي الدفع من بطاقة ثواني أو زر خارجي
   const makePayment = async (e) => {
     if (e && typeof e.preventDefault === "function") e.preventDefault();
+
+    // منع الطلب إلا إذا دول الخليج + تحديد الدولة
+    if (!allowedByRegion) {
+      setError("الطلبات متاحة فقط لدول الخليج. الرجاء اختيار دولة من دول الخليج.");
+      return;
+    }
 
     if (products.length === 0) {
       setError("لا توجد منتجات في السلة. الرجاء إضافة منتجات قبل المتابعة إلى الدفع.");
@@ -277,8 +287,7 @@ const Checkout = () => {
                   </select>
                   <p className="text-xs text-gray-600 mt-2">
                     الشحن يبدأ من: الإمارات <span className="font-semibold">4 ر.ع</span> — بقية دول الخليج{" "}
-                    <span className="font-semibold">5 ر.ع</span>، ويُضاف <span className="font-semibold">+4 ر.ع</span> لكل{" "}
-                    <span className="font-semibold">3 عطور</span>.
+                    <span className="font-semibold">5 ر.ع</span>، وتبدأ الزيادة من العطر الرابع (+4 ر.ع لكل 3 عطور إضافية).
                   </p>
                 </div>
               )}
@@ -401,6 +410,13 @@ const Checkout = () => {
                 </div>
               )}
 
+              {/* رسالة توضيحية في حال كانت المنطقة غير مسموح بها */}
+              {!allowedByRegion && (
+                <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 p-2 rounded">
+                  الطلبات متاحة فقط لدول الخليج. الرجاء اختيار دولة من دول الخليج للمتابعة.
+                </p>
+              )}
+
               {/* رسوم الشحن تُخفى عند دفع المقدم */}
               {!payDepositEffective && (
                 <div className="flex justify-between items-center pt-2 border-t border-gray-200">
@@ -430,21 +446,23 @@ const Checkout = () => {
               {/* بطاقة دفع ثواني (ليست زرًا) */}
               <div
                 onClick={(e) => {
-                  if (products.length === 0) return;
+                  if (products.length === 0 || !allowedByRegion) return;
                   makePayment(e);
                 }}
                 onKeyDown={(e) => {
-                  if (products.length === 0) return;
+                  if (products.length === 0 || !allowedByRegion) return;
                   if (e.key === "Enter" || e.key === " ") makePayment(e);
                 }}
                 role="button"
-                aria-disabled={products.length === 0}
-                tabIndex={products.length === 0 ? -1 : 0}
+                aria-disabled={products.length === 0 || !allowedByRegion}
+                tabIndex={products.length === 0 || !allowedByRegion ? -1 : 0}
                 className={[
                   "w-full rounded-xl border border-gray-200 bg-white",
                   "px-4 py-3 shadow-sm flex items-center justify-center gap-3",
-                  "transition hover:shadow-md hover:border-[#799b52]",
-                  products.length === 0 ? "opacity-50 pointer-events-none select-none" : "cursor-pointer"
+                  "transition",
+                  products.length === 0 || !allowedByRegion
+                    ? "opacity-50 pointer-events-none select-none"
+                    : "hover:shadow-md hover:border-[#799b52] cursor-pointer"
                 ].join(" ")}
               >
                 <img
@@ -470,7 +488,8 @@ const Checkout = () => {
               <button
                 onClick={makePayment}
                 className="mt-4 w-full bg-[#42a0ec] text-white px-6 py-3 rounded-md  transition-colors"
-                disabled={products.length === 0}
+                disabled={products.length === 0 || !allowedByRegion}
+                title={!allowedByRegion ? "الطلبات متاحة فقط لدول الخليج" : undefined}
               >
                 إتمام الطلب
               </button>

@@ -1,3 +1,4 @@
+// OrderSummary.jsx
 import React, { useEffect, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearCart } from '../../redux/features/cart/cartSlice';
@@ -33,9 +34,11 @@ const OrderSummary = ({ onClose }) => {
 
   const baseShippingOMR = country === 'دول الخليج' ? 5 : Number(shippingFee || 0);
 
+  // ✅ التعديل: لا زيادة عند 3 عطور أو أقل. تبدأ الزيادة من العطر الرابع،
+  // ثم كل 3 عطور إضافية تضيف +4 ر.ع
   const shippingFeeOMR = useMemo(() => {
     if (country !== 'دول الخليج') return baseShippingOMR;
-    const extraBlocks = Math.floor(perfumeUnits / 3);
+    const extraBlocks = Math.max(0, Math.floor((perfumeUnits - 1) / 3));
     const extra = extraBlocks * 4;
     return baseShippingOMR + extra;
   }, [country, baseShippingOMR, perfumeUnits]);
@@ -131,7 +134,7 @@ const OrderSummary = ({ onClose }) => {
 
         <p className="text-[12px] text-gray-500 leading-5 mt-2">
           {country === 'دول الخليج'
-            ? <>يبدأ الشحن من 5 ر.ع، ويضاف <b>+4 ر.ع</b> لكل <b>3 عطور</b> في الطلب.</>
+            ? <>يبدأ الشحن من 5 ر.ع، ولا تُضاف زيادة حتى 3 عطور. من العطر الرابع تُضاف <b>+4 ر.ع</b> لكل <b>3 عطور إضافية</b> في الطلب.</>
             : <>سيتم احتساب الشحن والضرائب (إن وُجدت) عند إتمام الطلب.</>
           }
         </p>
