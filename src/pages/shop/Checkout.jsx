@@ -94,16 +94,17 @@ const Checkout = () => {
   // حالة المقدم الفعلية: تُلغى قسرًا في دول الخليج
   const payDepositEffective = country === "دول الخليج" ? false : payDeposit;
 
-  // ✅ السماح بالطلب فقط إذا كانت دول الخليج مختارة وتم اختيار دولة خليجية
-  const allowedByRegion = country === "دول الخليج" && !!gulfCountry;
+  // السماح بالدفع إذا كانت عُمان، أو دول الخليج مع تحديد الدولة
+  const allowedByRegion =
+    country === "عُمان" || (country === "دول الخليج" && !!gulfCountry);
 
   // ✅ نستدعي الدفع من بطاقة ثواني أو زر خارجي
   const makePayment = async (e) => {
     if (e && typeof e.preventDefault === "function") e.preventDefault();
 
-    // منع الطلب إلا إذا دول الخليج + تحديد الدولة
     if (!allowedByRegion) {
-      setError("الطلبات متاحة فقط لدول الخليج. الرجاء اختيار دولة من دول الخليج.");
+      // الحالة الوحيدة لعدم السماح الآن: دول الخليج بدون اختيار الدولة
+      setError("الرجاء اختيار دولة من دول الخليج.");
       return;
     }
 
@@ -393,7 +394,8 @@ const Checkout = () => {
 
               {/* بطاقة الهدية (إن وُجدت) - عرض وإزالة فقط */}
               {giftCard && (giftCard.from || giftCard.to || giftCard.phone || giftCard.note) && (
-                <div className="mt-2 p-3 rounded-md bg-pink-50/40 border border-pink-200 text-gray-800 space-y-1">
+                <div className="mt-2 p-3 rounded-md bg-pink-50/40 border border-pink-200 text-gray-8
+00 space-y-1">
                   <div className="flex justify-between items-center">
                     <h3 className="font-semibold">بطاقة هدية</h3>
                     <button
@@ -410,10 +412,10 @@ const Checkout = () => {
                 </div>
               )}
 
-              {/* رسالة توضيحية في حال كانت المنطقة غير مسموح بها */}
-              {!allowedByRegion && (
+              {/* رسالة توضيحية عند اختيار دول الخليج بدون تحديد الدولة */}
+              {country === "دول الخليج" && !gulfCountry && (
                 <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 p-2 rounded">
-                  الطلبات متاحة فقط لدول الخليج. الرجاء اختيار دولة من دول الخليج للمتابعة.
+                  الرجاء اختيار دولة من دول الخليج للمتابعة.
                 </p>
               )}
 
